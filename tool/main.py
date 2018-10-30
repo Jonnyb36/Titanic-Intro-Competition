@@ -1,9 +1,11 @@
 
 import pandas as pd
+import numpy as np
 import toml
 from os import path, makedirs
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn import linear_model
 
 def run_tool(configFN, testing=False):
     
@@ -23,13 +25,14 @@ def run_tool(configFN, testing=False):
     print(dfCombined.head())
     #418 rows.  Age 332 rows, Fare 417 rows, Cabin 91 rows
 
-    dfTrain = pd.read_csv(path.join(dictGlobal['inputFP'],dictGlobal['trainFN']))
+    dfTrain = pd.read_csv(path.join(dictGlobal['inputFP'],dictGlobal['trainFN'])).dropna()
     dfTrain.info()
     print(dfTrain.head())
     #891 rows.  Age only 714 rows.  Cabin only 204 rows.
 
-    dfClean = dfCombined[['Survived', 'Pclass', 'Sex', 'SibSp', 'Parch', 'Embarked']]
+    dfCleanTest = dfCombined[['Survived', 'Pclass', 'Sex', 'SibSp', 'Parch', 'Embarked', 'Age']].dropna()
 
+    '''
     sns.pairplot(dfClean, hue='Survived', kind='reg')
     plt.show()
 
@@ -40,11 +43,32 @@ def run_tool(configFN, testing=False):
 
     sns.jointplot(x='Pclass',y='Survived',data=dfCombined)
     plt.show()
+    '''
 
+    #Linear Regression
+    reg = linear_model.LinearRegression()
 
+    Y_train = dfTrain.Survived
+    PredResults = dfCleanTest['Survived']
+
+    #Age classification
+    feature_X_train = dfTrain.Age.as_matrix().reshape(-1,1) #convert to numpy array
+    feature_X_test = dfCleanTest.Age.as_matrix().reshape(-1,1)
+
+    reg.fit(feature_X_train, Y_train)
+
+    survived_predict = reg.predict(feature_X_test)
+    print(survived_predict)
+    print(reg.coef_)
     
+    #round everyone above 0.5 as survived
+    dfCleanTest['rawPrediction'] = survived_predict
+    dfCleanTest['prediction'] = [1 if x >= 0.5 else 0 for x in survived_predict]
+    dfCleanTest['predCorrect'] = (dfCleanTest['Survived']==dfCleanTest['prediction']).astype(int)
+    percCorrect = sum(dfCleanTest['predCorrect'])/len(dfCleanTest['predCorrect'])
+
     outputFP = dictConfig['testing']['outputFP'] if testing else dictGlobal['outputFP']
 
 if __name__ == '__main__':
-    configFN = r'C:\Users\Brow54J\Kaggle\Titanic-Intro-Competition\config.toml'
+    configFN = r'/Users/jonbrown/Documents/GitHub/Titanic-Intro-Competition/config.toml'
     run_tool(configFN, True)
