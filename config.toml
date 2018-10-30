@@ -1,9 +1,9 @@
 [global]
-inputFP = 'C:\Users\Brow54J\Kaggle\Titanic-Intro-Competition\Data'
+inputFP = '/Users/jonbrown/Documents/GitHub/Titanic-Intro-Competition/Data'
 genderFN = 'gender_submission.csv'
 testFN = 'test.csv'
 trainFN = 'train.csv'
-outputFP = 'C:\Users\Brow54J\Kaggle\Titanic-Intro-Competition\Results'
+outputFP = '/Users/jonbrown/Documents/GitHub/Titanic-Intro-Competition/Results'
 
 [testing]
-outputFP = 'C:\Users\Brow54J\Kaggle\Titanic-Intro-Competition\tool\Test_Results'
+outputFP = '/Users/jonbrown/Documents/GitHub/Titanic-Intro-Competition/tool\Test_Results'
